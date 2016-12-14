@@ -114,7 +114,7 @@ def testPredicate( predicate, separator, fmt, timeout, options ):
 	
 
 if __name__ == '__main__':
-	parser = argparse.ArgumentParser( description = "Regress gcc optimizer behavior using the provided predicate." )
+	parser = argparse.ArgumentParser( description = "Regress gcc optimizer behavior using the provided predicate. Given two sets of compiler options, it detects relevant implicit options and incrementally tests differences between both options. Tests are one or more template commands that indicate failure via non-zero return status.\n\tMake example: {} --begin='-Og', --end='-Ofast -fno-inine' --predicate='CFLAGS=\"{{}}\" make myTest ; ./myTest'".format( sys.argv[ 0 ] )  )
 
 	parser.add_argument( '-b', '--begin',
 		type = str,
@@ -153,16 +153,16 @@ if __name__ == '__main__':
 
 	parser.add_argument( '-v', '--verbose',
 		type = str,
-		default = 'DEBUG',
+		default = 'WARN',
 		choices = (' DEBUG', 'INFO', 'WARN', 'ERROR', 'CRITICAL' ),
-		help = "Verbosity for logging. Must be one of DEBUG, INFO, WARN, ERROR, or CRITICAL." )
+		help = "Verbosity for logging." )
 
 	args = parser.parse_args()
 	handler = logging.StreamHandler()
 	handler.setLevel( args.verbose )
 	logger.addHandler( handler )
 	logger.setLevel( args.verbose )
-	logger.setFormatter( logging.formater( '%(asctime)s - %(name)s - %(level)s - $(message)s' )
+	logger.setFormatter( logging.formater( '%(asctime)s - %(name)s - %(level)s - $(message)s' ) )
 
 	working = Optimizers.regress(
 		Optimizers.fromArgs( shlex.split( args.begin ), args.compiler ),
