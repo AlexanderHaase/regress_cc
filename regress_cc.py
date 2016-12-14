@@ -17,7 +17,7 @@ import shlex
 import functools
 import logging
 
-logger = logging.getLogger( __name__ if __name__ != '__main__' else sys.argv[ 0 ] )
+logger = logging.getLogger( __name__ if __name__ != '__main__' else os.path.basename( sys.argv[ 0 ] ) )
 
 class Optimizers( object ):
 	'''
@@ -114,7 +114,8 @@ def testPredicate( predicate, separator, fmt, timeout, options ):
 	
 
 if __name__ == '__main__':
-	parser = argparse.ArgumentParser( description = "Regress gcc optimizer behavior using the provided predicate. Given two sets of compiler options, it detects relevant implicit options and incrementally tests differences between both options. Tests are one or more template commands that indicate failure via non-zero return status.\n\tMake example: {} --begin='-Og', --end='-Ofast -fno-inine' --predicate='CFLAGS=\"{{}}\" make myTest ; ./myTest'".format( sys.argv[ 0 ] )  )
+	parser = argparse.ArgumentParser( description = "Regress gcc optimizer behavior using the provided predicate. Given two sets of compiler options, it detects relevant implicit options and incrementally tests differences between both options. Tests are one or more template commands that indicate failure via non-zero return status.\n\tMake example: {} --begin='-Og', --end='-Ofast -fno-inine' --predicate='CFLAGS=\"{{}}\" make myTest ; ./myTest'".format( sys.argv[ 0 ] ),
+epilog = "After testing, predicate-passing arguments are written to stdout." )
 
 	parser.add_argument( '-b', '--begin',
 		type = str,
@@ -160,9 +161,9 @@ if __name__ == '__main__':
 	args = parser.parse_args()
 	handler = logging.StreamHandler()
 	handler.setLevel( args.verbose )
+	handler.setFormatter( logging.Formatter( '%(asctime)s - %(name)s - %(levelname)s - %(message)s' ) )
 	logger.addHandler( handler )
 	logger.setLevel( args.verbose )
-	logger.setFormatter( logging.formater( '%(asctime)s - %(name)s - %(level)s - $(message)s' ) )
 
 	working = Optimizers.regress(
 		Optimizers.fromArgs( shlex.split( args.begin ), args.compiler ),
